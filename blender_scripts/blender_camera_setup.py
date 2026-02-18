@@ -29,12 +29,12 @@ from mathutils import Vector
 
 # Default camera viewpoints (same as Hy3DRenderMultiView defaults)
 # Note: The names are what the view SHOWS in Blender, not Hunyuan3D's internal naming
-CAMERA_AZIMS = [0, 90, 180, 270, 0, 180]
-CAMERA_ELEVS = [0, 0, 0, 0, 90, -90]
+CAMERA_AZIMS = [0, 90, 180, 270, 0, 180, 270, 90]
+CAMERA_ELEVS = [0, 0, 0, 0, 90, -90, -45, -45]
 
 # Corrected view names based on what each camera actually shows in Blender
 # (After coordinate system transformation from Hunyuan3D)
-VIEW_NAMES = ["top", "right", "bottom", "left", "back", "front"]
+VIEW_NAMES = ["top", "right", "bottom", "left", "back", "front", "front_left", "front_right"]
 
 # Custom up axis for specific views to match Hunyuan3D orientation
 # Most views use UP_Y, but top/bottom need special handling
@@ -282,15 +282,19 @@ def print_expected_views():
     print("""
 Camera mapping (Hunyuan3D params → Blender view name):
 
-  Hy3D (azim=0°,   elev=0°)   → "top"    : Looking down at top of model
-  Hy3D (azim=90°,  elev=0°)   → "right"  : Looking at right side of model
-  Hy3D (azim=180°, elev=0°)   → "bottom" : Looking up at bottom of model
-  Hy3D (azim=270°, elev=0°)   → "left"   : Looking at left side of model
-  Hy3D (azim=0°,   elev=90°)  → "back"   : Looking at back of model
-  Hy3D (azim=180°, elev=-90°) → "front"  : Looking at front of model
+  Hy3D (azim=0°,   elev=0°)   → "top"         : Looking down at top of model
+  Hy3D (azim=90°,  elev=0°)   → "right"        : Looking at right side of model
+  Hy3D (azim=180°, elev=0°)   → "bottom"       : Looking up at bottom of model
+  Hy3D (azim=270°, elev=0°)   → "left"         : Looking at left side of model
+  Hy3D (azim=0°,   elev=90°)  → "back"         : Looking at back of model
+  Hy3D (azim=180°, elev=-90°) → "front"        : Looking at front of model
+  Hy3D (azim=270°, elev=-45°) → "front_left"   : Front view rotated -45° around Z
+  Hy3D (azim=90°,  elev=-45°) → "front_right"  : Front view rotated +45° around Z
 
-Note: The naming reflects what the camera SHOWS in Blender after
-coordinate system transformation from Hunyuan3D's internal system.
+Note: front_right and front_left are derived from the front view by rotating
+the camera position ±45° around the world Z axis (not the Y axis as before).
+Both cameras remain at the same height as the front camera (elev=-45° in
+Hunyuan3D params = horizontal plane in Blender space).
 
 To verify: Render in both ComfyUI and Blender, compare the views.
 """)
@@ -335,13 +339,15 @@ Mesh normalization:
   - Run blender_normalize_mesh.py after selecting your mesh
   - Or manually scale your mesh to fit within ~0.575 radius from origin
 
-View correspondence with ComfyUI output order [0,1,2,3,4,5]:
+View correspondence with ComfyUI output order [0,1,2,3,4,5,6,7]:
   - ComfyUI index 0 (azim=0°,   elev=0°)   → Blender "top"
   - ComfyUI index 1 (azim=90°,  elev=0°)   → Blender "right"
   - ComfyUI index 2 (azim=180°, elev=0°)   → Blender "bottom"
   - ComfyUI index 3 (azim=270°, elev=0°)   → Blender "left"
   - ComfyUI index 4 (azim=0°,   elev=90°)  → Blender "back"
   - ComfyUI index 5 (azim=180°, elev=-90°) → Blender "front"
+  - ComfyUI index 6 (azim=270°, elev=-45°) → Blender "front_left"  (front view rotated -45° around Z)
+  - ComfyUI index 7 (azim=90°,  elev=-45°) → Blender "front_right" (front view rotated +45° around Z)
 """)
     print("=" * 70 + "\n")
 
